@@ -1,8 +1,8 @@
-import React, { Component, ChangeEvent } from "react";
+import React, { Component, ChangeEvent, FormEvent } from "react";
+import axios from "axios";
 import Mascaras from "./mascaras";
 
 export default class CadastroCliente extends Component<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -56,7 +56,11 @@ export default class CadastroCliente extends Component<Props, State> {
     this.setState({ [field]: value } as unknown as Pick<State, keyof State>);
   };
 
-  handleChangeTelefone = (index: number, field: keyof { ddd: string; numero: string }, value: string) => {
+  handleChangeTelefone = (
+    index: number,
+    field: keyof { ddd: string; numero: string },
+    value: string
+  ) => {
     this.setState((prevState) => {
       const novosTelefones = [...prevState.telefones];
       novosTelefones[index] = { ...novosTelefones[index], [field]: value };
@@ -99,56 +103,133 @@ export default class CadastroCliente extends Component<Props, State> {
       return { [field]: updatedArray } as unknown as Pick<State, keyof State>;
     });
   };
-
-  handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  
+  handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+
+    
+    const {
+      nome,
+      nomeSocial,
+      cpf,
+      dataEmissaoCPF,
+      rg,
+      dataEmissaoRG,
+      telefones,
+      produtosConsumidos,
+      servicosConsumidos,
+      pets,
+      dataCadastro,
+    } = this.state;
+
+    const novoCliente = {
+      nome,
+      nomeSocial,
+      cpf,
+      dataEmissaoCPF,
+      rg,
+      dataEmissaoRG,
+      telefones,
+      produtosConsumidos,
+      servicosConsumidos,
+      pets,
+      dataCadastro,
+    };
+
+    try {
+      const response = await fetch('http://localhost:32831/cliente/cadastrar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novoCliente),
+      });
+  
+      if (response.ok) {
+        
+        alert('Cliente cadastrado com sucesso!');
+       
+        this.setState({
+          nome: '',
+          nomeSocial: '',
+          cpf: '',
+          dataEmissaoCPF: '',
+          rg: [''],
+          dataEmissaoRG: [''],
+          telefones: [{ ddd: '', numero: '' }],
+          produtosConsumidos: [''],
+          servicosConsumidos: [''],
+          pets: [{ nome: '', raça: '', gênero: '', tipo: '' }],
+          dataCadastro: '',
+        });
+      } else {
+        
+        alert('Falha ao cadastrar cliente. Por favor, tente novamente.');
+      }
+    } catch (error) {
+      
+      console.error('Erro ao cadastrar cliente:', error);
+      alert('Ocorreu um erro ao cadastrar cliente. Verifique sua conexão ou tente novamente mais tarde.');
+    }
   };
 
   render() {
-
     const { tema } = this.props;
-    const { nome, nomeSocial, cpf, dataEmissaoCPF, rg, dataEmissaoRG, telefones, produtosConsumidos, servicosConsumidos, pets, dataCadastro } = this.state;
+    const {
+      nome,
+      nomeSocial,
+      cpf,
+      dataEmissaoCPF,
+      rg,
+      dataEmissaoRG,
+      telefones,
+      produtosConsumidos,
+      servicosConsumidos,
+      pets,
+      dataCadastro,
+    } = this.state;
 
     return (
-
       <div className="container-conteudo">
         <div className="forma">
           <form onSubmit={this.handleSubmit}>
             <div className="input-group mb-3">
-
               <input
                 type="text"
                 className="form-control"
                 placeholder="Nome do Cliente"
                 aria-label="Nome"
                 value={nome}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChange("nome", e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  this.handleChange("nome", e.target.value)
+                }
               />
-
             </div>
 
             <div className="input-group mb-3">
-
               <input
                 type="text"
                 className="form-control"
                 placeholder="Nome Social"
                 aria-label="Nome Social"
                 value={nomeSocial}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChange("nomeSocial", e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  this.handleChange("nomeSocial", e.target.value)
+                }
               />
-              
             </div>
 
             <div className="input-group mb-3">
-
               <input
                 type="text"
                 className="form-control"
                 placeholder="CPF"
                 aria-label="CPF"
                 value={cpf}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeCPF(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  this.handleChangeCPF(e.target.value)
+                }
               />
 
               <input
@@ -157,22 +238,23 @@ export default class CadastroCliente extends Component<Props, State> {
                 placeholder="Data de Emissão do CPF"
                 aria-label="Data de Emissão do CPF"
                 value={dataEmissaoCPF}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChange("dataEmissaoCPF", e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  this.handleChange("dataEmissaoCPF", e.target.value)
+                }
               />
-
             </div>
 
             {rg.map((rg, index) => (
-
               <div className="input-group mb-3" key={index}>
-
                 <input
                   type="text"
                   className="form-control"
                   placeholder="RG"
                   aria-label="RG"
                   value={rg}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeRg(index, e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangeRg(index, e.target.value)
+                  }
                 />
 
                 <input
@@ -181,26 +263,33 @@ export default class CadastroCliente extends Component<Props, State> {
                   placeholder="Data de Emissão do RG"
                   aria-label="Data de Emissão do RG"
                   value={dataEmissaoRG[index]}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeDataEmissaoRG(index, e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangeDataEmissaoRG(index, e.target.value)
+                  }
                 />
 
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarRG}> Adicionar RG </button>
-
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={this.adicionarRG}
+                >
+                  {" "}
+                  Adicionar RG{" "}
+                </button>
               </div>
-
             ))}
 
             {telefones.map((telefone, index) => (
-
               <div className="input-group mb-3" key={index}>
-
                 <input
                   type="text"
                   className="form-control"
                   placeholder="DDD"
                   aria-label="DDD"
                   value={telefone.ddd}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeTelefone(index, "ddd", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangeTelefone(index, "ddd", e.target.value)
+                  }
                 />
 
                 <input
@@ -209,63 +298,89 @@ export default class CadastroCliente extends Component<Props, State> {
                   placeholder="Telefone"
                   aria-label="Telefone"
                   value={telefone.numero}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeTelefone(index, "numero", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangeTelefone(index, "numero", e.target.value)
+                  }
                 />
 
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarTelefone}> Adicionar Telefone </button>
-
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={this.adicionarTelefone}
+                >
+                  {" "}
+                  Adicionar Telefone{" "}
+                </button>
               </div>
-
             ))}
 
             {produtosConsumidos.map((produto, index) => (
-
               <div className="input-group mb-3" key={index}>
-
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Produto Consumido"
                   aria-label="Produto Consumido"
                   value={produto}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeArray("produtosConsumidos", index, e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangeArray(
+                      "produtosConsumidos",
+                      index,
+                      e.target.value
+                    )
+                  }
                 />
 
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarProduto}> Adicionar Produto </button>
-
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={this.adicionarProduto}
+                  >
+                  {" "}
+                  Adicionar Produto{" "}
+                </button>
               </div>
             ))}
 
             {servicosConsumidos.map((servico, index) => (
-
               <div className="input-group mb-3" key={index}>
-
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Serviço Consumido"
                   aria-label="Serviço Consumido"
                   value={servico}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeArray("servicosConsumidos", index, e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangeArray(
+                      "servicosConsumidos",
+                      index,
+                      e.target.value
+                    )
+                  }
                 />
 
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarServico}> Adicionar Serviço </button>
-
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={this.adicionarServico}
+                >
+                  {" "}
+                  Adicionar Serviço{" "}
+                </button>
               </div>
-
             ))}
 
             {pets.map((pet, index) => (
-
               <div className="input-group mb-3" key={index}>
-
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Pet"
                   aria-label="Nome do Pet"
                   value={pet.nome}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "nome", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangePet(index, "nome", e.target.value)
+                  }
                 />
 
                 <input
@@ -274,16 +389,20 @@ export default class CadastroCliente extends Component<Props, State> {
                   placeholder="Raça"
                   aria-label="Raça"
                   value={pet.raça}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "raça", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangePet(index, "raça", e.target.value)
+                  }
                 />
-                
+
                 <input
                   type="text"
                   className="form-control"
                   placeholder="Gênero"
                   aria-label="Gênero"
                   value={pet.gênero}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "gênero", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangePet(index, "gênero", e.target.value)
+                  }
                 />
 
                 <input
@@ -292,13 +411,20 @@ export default class CadastroCliente extends Component<Props, State> {
                   placeholder="Tipo"
                   aria-label="Tipo"
                   value={pet.tipo}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "tipo", e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    this.handleChangePet(index, "tipo", e.target.value)
+                  }
                 />
 
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarPet}> Adicionar Pet</button>
-
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={this.adicionarPet}
+                >
+                  {" "}
+                  Adicionar Pet
+                </button>
               </div>
-
             ))}
 
             <div className="input-group mb-3">
@@ -312,17 +438,22 @@ export default class CadastroCliente extends Component<Props, State> {
                 placeholder="Data de Cadastro"
                 aria-label="Data de Cadastro"
                 value={dataCadastro}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChange("dataCadastro", e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  this.handleChange("dataCadastro", e.target.value)
+                }
               />
-
             </div>
 
             <div className="input-group mb-3">
-
-              <button className="btn btn-outline-secondary" type="submit" style={{ background: tema }}> Cadastrar Cliente </button>
-
+              <button
+                className="btn btn-outline-secondary"
+                type="submit"
+                style={{ background: tema }}
+              >
+                {" "}
+                Cadastrar Cliente{" "}
+              </button>
             </div>
-
           </form>
         </div>
       </div>

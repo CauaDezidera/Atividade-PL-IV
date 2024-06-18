@@ -99,8 +99,46 @@ export default class AtualizarCliente extends Component<Props, State> {
     });
   };
 
-  handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const { nome, nomeSocial, cpf, dataEmissaoCPF, rg, dataEmissaoRG, telefones, produtosConsumidos, servicosConsumidos, pets, dataCadastro } = this.state;
+
+    const clienteAtualizado = {
+      nome,
+      nomeSocial,
+      cpf,
+      dataEmissaoCPF,
+      rg,
+      dataEmissaoRG,
+      telefones,
+      produtosConsumidos,
+      servicosConsumidos,
+      pets,
+      dataCadastro,
+    };
+
+    try {
+      const response = await fetch('http://localhost:32831/cliente/atualizar', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clienteAtualizado),
+      });
+  
+      if (response.ok) {
+        alert('Cliente atualizado com sucesso!');
+        
+      } else {
+        const errorData = await response.json(); 
+        console.error('Falha ao atualizar cliente:', errorData.error);
+        alert(`Falha ao atualizar cliente: ${errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar cliente:', error);
+      alert('Ocorreu um erro ao atualizar cliente. Verifique sua conexão ou tente novamente mais tarde.');
+    }
   };
 
   render() {
@@ -179,7 +217,6 @@ export default class AtualizarCliente extends Component<Props, State> {
                 <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarRG}> Adicionar RG </button>
 
               </div>
-
             ))}
 
             {telefones.map((telefone, index) => (
@@ -206,7 +243,6 @@ export default class AtualizarCliente extends Component<Props, State> {
                 <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarTelefone}>Adicionar Telefone </button>
 
               </div>
-
             ))}
 
             {produtosConsumidos.map((produto, index) => (
@@ -224,7 +260,6 @@ export default class AtualizarCliente extends Component<Props, State> {
                 <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarProduto}> Adicionar Produto </button>
 
               </div>
-
             ))}
 
             {servicosConsumidos.map((servico, index) => (
@@ -236,102 +271,101 @@ export default class AtualizarCliente extends Component<Props, State> {
                   aria-label="Serviço Consumido"
                   value={servico}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangeArray("servicosConsumidos", index, e.target.value)}
+                  />
+                  <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarServico}> Adicionar Serviço </button>
+  
+                </div>
+              ))}
+  
+              {pets.map((pet, index) => (
+                <div className="input-group mb-3" key={index}>
+  
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Pet"
+                    aria-label="Nome do Pet"
+                    value={pet.nome}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "nome", e.target.value)}
+                  />
+  
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Raça"
+                    aria-label="Raça"
+                    value={pet.raça}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "raça", e.target.value)}
+                  />
+  
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Gênero"
+                    aria-label="Gênero"
+                    value={pet.gênero}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "gênero", e.target.value)}
+                  />
+  
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Tipo"
+                    aria-label="Tipo"
+                    value={pet.tipo}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "tipo", e.target.value)}
+                  />
+  
+                  <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarPet}> Adicionar Pet</button>
+  
+                </div>
+              ))}
+  
+              <div className="input-group mb-3">
+  
+                <input
+                  type="date"
+                  className="form-control"
+                  placeholder="Data de Cadastro"
+                  aria-label="Data de Cadastro"
+                  value={dataCadastro}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChange("dataCadastro", e.target.value)}
                 />
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarServico}> Adicionar Serviço </button>
-
+  
               </div>
-
-            ))}
-
-            {pets.map((pet, index) => (
-              <div className="input-group mb-3" key={index}>
-
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Pet"
-                  aria-label="Nome do Pet"
-                  value={pet.nome}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "nome", e.target.value)}
-                />
-
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Raça"
-                  aria-label="Raça"
-                  value={pet.raça}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "raça", e.target.value)}
-                />
-
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Gênero"
-                  aria-label="Gênero"
-                  value={pet.gênero}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "gênero", e.target.value)}
-                />
-
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Tipo"
-                  aria-label="Tipo"
-                  value={pet.tipo}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChangePet(index, "tipo", e.target.value)}
-                />
-
-                <button type="button" className="btn btn-outline-secondary" onClick={this.adicionarPet}> Adicionar Pet</button>
-
-              </div>
-
-            ))}
-
-            <div className="input-group mb-3">
-
-              <input
-                type="date"
-                className="form-control"
-                placeholder="Data de Cadastro"
-                aria-label="Data de Cadastro"
-                value={dataCadastro}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => this.handleChange("dataCadastro", e.target.value)}
-              />
-
-            </div>
-
-            <button type="submit"   className="btn btn-outline-secondary"  style={{ background: tema }}>Atualizar Cliente</button>
-
-          </form>
+  
+              <button type="submit" className="btn btn-outline-secondary" style={{ background: tema }}>Atualizar Cliente</button>
+  
+            </form>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
-}
-
-type Props = {
-  tema: string;
-};
-
-type Pet = {
-  nome: string;
-  raça: string;
-  gênero: string;
-  tipo: string;
-};
-
-type State = {
-  nome: string;
-  nomeSocial: string;
-  cpf: string;
-  dataEmissaoCPF: string;
-  rg: string[];
-  dataEmissaoRG: string[];
-  telefones: { ddd: string; numero: string }[];
-  produtosConsumidos: string[];
-  servicosConsumidos: string[];
-  nomePet: string;
-  pets: Pet[];
-  dataCadastro: string;
-};
+  
+  type Props = {
+    tema: string;
+  };
+  
+  type Pet = {
+    nome: string;
+    raça: string;
+    gênero: string;
+    tipo: string;
+  };
+  
+  type State = {
+    nome: string;
+    nomeSocial: string;
+    cpf: string;
+    dataEmissaoCPF: string;
+    rg: string[];
+    dataEmissaoRG: string[];
+    telefones: { ddd: string; numero: string }[];
+    produtosConsumidos: string[];
+    servicosConsumidos: string[];
+    nomePet: string;
+    pets: Pet[];
+    dataCadastro: string;
+  };
+  
